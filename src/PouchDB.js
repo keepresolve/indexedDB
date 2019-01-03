@@ -40,13 +40,13 @@ async function test() {
       live: true,
       include_docs: true
     })
-    .on("change", function(change) {
+    .on("change", function (change) {
       console.log("change", change);
     })
-    .on("complete", function(info) {
+    .on("complete", function (info) {
       console.log("complete", info);
     })
-    .on("error", function(err) {
+    .on("error", function (err) {
       console.error(err);
     });
 
@@ -58,6 +58,12 @@ async function test() {
     });
     str += "\n\r【创建:】\n\r " + formatJson(putResult);
 
+    // put创建
+    let putArray = await db.put({
+      _id: "array",
+      title: [1, 2, 3]
+    });
+    str += "\n\r【创建array:】\n\r " + formatJson(putArray);
     //get查询
     let getResult = await db.get("mydoc");
     str += "\n\r【查询get:】\n\r" + formatJson(getResult);
@@ -113,9 +119,9 @@ async function test() {
 test();
 
 //https://pouchdb.com/guides/attachments.html#base64-vs-blobs-buffers
-window.addEventListener("load", async function() {
+window.addEventListener("load", async function () {
   let input = window.document.querySelector("input");
-  input.addEventListener("change", async function() {
+  input.addEventListener("change", async function () {
     var file = input.files[0]; // file is a Blob
     try {
       let uplpadResult = await db.put({
@@ -129,7 +135,7 @@ window.addEventListener("load", async function() {
       });
       str += "\n\r【file存储:】\n\r" + formatJson(uplpadResult);
       pre.innerText = str;
-    
+
       // let getResult = await db.get(file.name);
       // let getResult = await db.get(file.name, { attachments: true });
       let blob = await db.getAttachment(file.name, file.name);
@@ -142,7 +148,7 @@ window.addEventListener("load", async function() {
   });
 });
 
-var formatJson = function(json, options) {
+var formatJson = function (json, options) {
   var reg = null,
     formatted = "",
     pad = 0,
@@ -177,7 +183,7 @@ var formatJson = function(json, options) {
     reg = /\:/g;
     json = json.replace(reg, ":");
   }
-  json.split("\r\n").forEach(function(node, index) {
+  json.split("\r\n").forEach(function (node, index) {
     var i = 0,
       indent = 0,
       padding = "";

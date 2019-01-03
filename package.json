@@ -1,11 +1,11 @@
 {
-  "name": "pouchdb",
+  "name": "h5离线缓存",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start":"webpack-dev-server --mode development --open",
-    "build":"set BABEL_ENV=production&& webpack --mode production",
+    "start": "webpack-dev-server --mode development --open",
+    "build": "set BABEL_ENV=production&& webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -31,6 +31,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "localforage": "^1.7.3",
     "pouchdb": "^7.0.0"
   }
 }

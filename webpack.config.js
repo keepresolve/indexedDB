@@ -61,6 +61,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "./dist"),
     compress: true,
+    https:true,
     port: 8000,
     openPage:"PouchDB.html"
   },
