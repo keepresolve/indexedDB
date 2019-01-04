@@ -9,7 +9,7 @@ const path = require("path");
 module.exports = {
   entry: {
     PouchDB: "./src/PouchDB.js",
-    localforage:"./src/localforage.js"
+    localforage: "./src/localforage.js"
   },
   output: {
     path: path.resolve(__dirname, "./dist"),
@@ -50,20 +50,27 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "static/PouchDB.html",
       filename: "PouchDB.html",
-      chunks:["PouchDB"]
+      chunks: ["PouchDB"]
     }),
     new HtmlWebPackPlugin({
       template: "static/localforage.html",
       filename: "localforage.html",
-      chunks:["localforage"]
+      chunks: ["localforage"]
     })
   ],
   devServer: {
     contentBase: path.join(__dirname, "./dist"),
     compress: true,
-    https:true,
+    // https:true,
     port: 8000,
-    openPage:"PouchDB.html"
+    openPage: "PouchDB.html",
+    proxy: {
+      "*": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   devtool: "source-map"
 };

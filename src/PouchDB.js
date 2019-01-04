@@ -1,4 +1,7 @@
+// require('es6-promise').polyfill();
 let PouchDB = require("pouchdb").default;
+// import 'fetch-detector';
+// import 'fetch-ie8';
 let app = document.querySelector("#app");
 let pre = document.createElement("pre");
 let img = document.querySelector("img");
@@ -29,10 +32,14 @@ let str = "";
 
 //
 async function test() {
-  db = new PouchDB("test");
+  //创建
+  db = new PouchDB("http://localhost:3000/dbname");
+  // db = new PouchDB("test");
+  // 删除数据库
   let destroyResult = await db.destroy("test");
   str += "\n\r删除数据库test:\n\r" + formatJson(destroyResult);
-  db = new PouchDB("test");
+  db = new PouchDB("http://localhost:3000/dbname");
+
   // change监听
   var changes = db
     .changes({
@@ -40,35 +47,36 @@ async function test() {
       live: true,
       include_docs: true
     })
-    .on("change", function (change) {
+    .on("change", function(change) {
       console.log("change", change);
     })
-    .on("complete", function (info) {
+    .on("complete", function(info) {
       console.log("complete", info);
     })
-    .on("error", function (err) {
+    .on("error", function(err) {
       console.error(err);
     });
 
   try {
-    // put创建
+    // put插入
     let putResult = await db.put({
       _id: "mydoc",
       title: "创建put"
     });
     str += "\n\r【创建:】\n\r " + formatJson(putResult);
 
-    // put创建
+    // array插入
     let putArray = await db.put({
       _id: "array",
       title: [1, 2, 3]
     });
     str += "\n\r【创建array:】\n\r " + formatJson(putArray);
-    //get查询
+
+    //查询
     let getResult = await db.get("mydoc");
     str += "\n\r【查询get:】\n\r" + formatJson(getResult);
 
-    //put更新文档 _rev  没成功
+    //更新文档 使用_rev
     let putResult1 = await db.put({
       _id: "mydoc",
       _rev: getResult._rev,
@@ -82,13 +90,15 @@ async function test() {
     });
     str += "\n\r【post自动生成id:】\n\r" + formatJson(postResult);
 
-    //remove删除doc必须是至少包含一个 _id和_rev property 的文档。发送完整文档也可以。
+    //remove删除
+
+    // 必须是至少包含一个 _id和_rev 发送完整文档也可以。
     // let removeResult=await db.remove(postResult.id,postResult.rev)
     // str += "\n\rremove删除post 自动生成id:\n\r" + formatJson(removeResult);
     let removeResult = await db.remove(putResult1.id, putResult1.rev);
     str += "\n\r【remove删除更新get的文档:】\n\r" + formatJson(removeResult);
 
-    //附件  blob
+    //插入附件  blob
     let attachmentsREsult = await db.put({
       _id: "attachment",
       _attachments: {
@@ -100,28 +110,28 @@ async function test() {
     });
     str += "\n\r 【attachments 存储附件:】\n\r" + formatJson(attachmentsREsult);
 
-    // allDocs获取多条数据
+    // 查询 allDocs获取多条数据
     let getAllResult = await db.allDocs({
       include_docs: true,
-      attachments: true,
-      keys: ["mydoc", postResult.id] //可执行搜索显示的字段 包括已删除的
+      attachments: true
+      // keys: ["mydoc", postResult.id] //可执行搜索显示的字段 包括已删除的
     });
     str += "\n\r 【allDocs获取多条数据:】\n\r" + formatJson(getAllResult);
 
-    // 创建，更新或删除多个文档
+    // 批量创建，更新
     // db.bulkDocs(docs, [options], [callback])
   } catch (error) {
     str += "\n\r 【error:】\n\r" + formatJson(error);
   }
   pre.innerText = str;
-  app.append(pre);
+  app.appendChild(pre);
 }
 test();
 
 //https://pouchdb.com/guides/attachments.html#base64-vs-blobs-buffers
-window.addEventListener("load", async function () {
+window.addEventListener("load", async function() {
   let input = window.document.querySelector("input");
-  input.addEventListener("change", async function () {
+  input.addEventListener("change", async function() {
     var file = input.files[0]; // file is a Blob
     try {
       let uplpadResult = await db.put({
@@ -139,7 +149,7 @@ window.addEventListener("load", async function () {
       // let getResult = await db.get(file.name);
       // let getResult = await db.get(file.name, { attachments: true });
       let blob = await db.getAttachment(file.name, file.name);
-      img.src = URL.createObjectURL(blob);;
+      img.src = URL.createObjectURL(blob);
       str += "\n\r【获取file存储:】\n\r" + formatJson(blob);
       pre.innerText = str;
     } catch (error) {
@@ -148,7 +158,7 @@ window.addEventListener("load", async function () {
   });
 });
 
-var formatJson = function (json, options) {
+function formatJson(json, options) {
   var reg = null,
     formatted = "",
     pad = 0,
@@ -183,7 +193,7 @@ var formatJson = function (json, options) {
     reg = /\:/g;
     json = json.replace(reg, ":");
   }
-  json.split("\r\n").forEach(function (node, index) {
+  json.split("\r\n").forEach(function(node, index) {
     var i = 0,
       indent = 0,
       padding = "";
@@ -206,4 +216,4 @@ var formatJson = function (json, options) {
     pad += indent;
   });
   return formatted;
-};
+}
