@@ -33,13 +33,13 @@ let str = "";
 //
 async function test() {
   //创建
-  db = new PouchDB("http://localhost:3000/dbname");
-  // db = new PouchDB("test");
+  // db = new PouchDB("http://localhost:3000/dbname");
+  db = new PouchDB("test");
   // 删除数据库
   let destroyResult = await db.destroy("test");
   str += "\n\r删除数据库test:\n\r" + formatJson(destroyResult);
-  db = new PouchDB("http://localhost:3000/dbname");
-
+  // db = new PouchDB("http://localhost:3000/dbname");
+  db = new PouchDB("test");
   // change监听
   var changes = db
     .changes({
