@@ -1,6 +1,6 @@
 let localforage = require("localforage");
 
-let image = document.querySelector("img");
+let image = document.querySelector("#img");
 async function test() {
   await localforage.dropInstance({ name: "dataBaseName" });
   console.log("删除数据库dataBaseName");

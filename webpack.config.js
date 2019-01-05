@@ -56,6 +56,11 @@ module.exports = {
       template: "static/localforage.html",
       filename: "localforage.html",
       chunks: ["localforage"]
+    }),
+    new HtmlWebPackPlugin({
+      template: "static/index.html",
+      filename: "index.html",
+      chunks: []
     })
   ],
   devServer: {
@@ -63,14 +68,14 @@ module.exports = {
     compress: true,
     // https:true,
     port: 8000,
-    openPage: "PouchDB.html",
-    proxy: {
-      "*": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    openPage: "PouchDB.html"
+    // proxy: {
+    //   "*": {
+    //     target: "http://localhost:3000",
+    //     changeOrigin: true,
+    //     secure: false
+    //   }
+    // }
   },
   devtool: "source-map"
 };

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
+    "start": "set DEBUG=pouchdb:* && webpack-dev-server --mode development --open",
     "build": "set BABEL_ENV=production&& webpack --mode production",
     "pouchdb": "node node/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -36,6 +36,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express-pouchdb": "^4.1.0",
     "localforage": "^1.7.3",
     "pouchdb": "^7.0.0"
   }

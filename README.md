@@ -74,3 +74,13 @@
        storeName   : 'keyvaluepairs', // 仅接受字母，数字和下划线
        description : 'some description'
        });
+
+
+
+
+# 使用
+  
+    使用的express-pouchdb  暂时没有处理跨域
+    npm run build 打包 
+    npm run pouchdb 启动db后台 
+    访问 localhost:3000/Pouchdb.html   数据同步

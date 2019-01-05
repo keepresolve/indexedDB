@@ -1,6 +1,7 @@
 // require('es6-promise').polyfill();
 let PouchDB = require("pouchdb").default;
-// import 'fetch-detector';
+import formatJson  from "./formatJson.js"
+// import 'fetch-detector'; 
 // import 'fetch-ie8';
 let app = document.querySelector("#app");
 let pre = document.createElement("pre");
@@ -33,12 +34,12 @@ let str = "";
 //
 async function test() {
   //创建
-  // db = new PouchDB("http://localhost:3000/dbname");
+  // db = new PouchDB("http://localhost:3000/db/test");
   db = new PouchDB("test");
   // 删除数据库
   let destroyResult = await db.destroy("test");
   str += "\n\r删除数据库test:\n\r" + formatJson(destroyResult);
-  // db = new PouchDB("http://localhost:3000/dbname");
+  // db = new PouchDB("http://localhost:3000/db/test");
   db = new PouchDB("test");
   // change监听
   var changes = db
@@ -120,6 +121,37 @@ async function test() {
 
     // 批量创建，更新
     // db.bulkDocs(docs, [options], [callback])
+
+    // 同步
+    var sync = PouchDB.sync("test", "http://localhost:3000/db/test", {
+      live: true,
+      retry: true
+    })
+      .on("change", function(info) {
+        console.log("sync change", info);
+      })
+      .on("paused", function(err) {
+        console.log("sync paused", err);
+        // replication paused (e.g. replication up to date, user went offline)
+      })
+      .on("active", function(active) {
+        console.log("sync active", active);
+        // replicate resumed (e.g. new changes replicating, user went back online)
+      })
+      .on("denied", function(err) {
+        console.log("sync denied", err);
+        // a document failed to replicate (e.g. due to permissions)
+      })
+      .on("complete", function(info) {
+        console.log("sync complete", info);
+        // handle complete
+      })
+      .on("error", function(err) {
+        console.log("sync error", err);
+        // handle error
+      });
+
+    // sync.cancel(); // whenever you want to cancel
   } catch (error) {
     str += "\n\r 【error:】\n\r" + formatJson(error);
   }
@@ -149,6 +181,7 @@ window.addEventListener("load", async function() {
       // let getResult = await db.get(file.name);
       // let getResult = await db.get(file.name, { attachments: true });
       let blob = await db.getAttachment(file.name, file.name);
+      console.log(blob)
       img.src = URL.createObjectURL(blob);
       str += "\n\r【获取file存储:】\n\r" + formatJson(blob);
       pre.innerText = str;
@@ -157,63 +190,3 @@ window.addEventListener("load", async function() {
     }
   });
 });
-
-function formatJson(json, options) {
-  var reg = null,
-    formatted = "",
-    pad = 0,
-    PADDING = "    ";
-  options = options || {};
-  options.newlineAfterColonIfBeforeBraceOrBracket =
-    options.newlineAfterColonIfBeforeBraceOrBracket === true ? true : false;
-  options.spaceAfterColon = options.spaceAfterColon === false ? false : true;
-  if (typeof json !== "string") {
-    json = JSON.stringify(json);
-  } else {
-    json = JSON.parse(json);
-    json = JSON.stringify(json);
-  }
-  reg = /([\{\}])/g;
-  json = json.replace(reg, "\r\n$1\r\n");
-  reg = /([\[\]])/g;
-  json = json.replace(reg, "\r\n$1\r\n");
-  reg = /(\,)/g;
-  json = json.replace(reg, "$1\r\n");
-  reg = /(\r\n\r\n)/g;
-  json = json.replace(reg, "\r\n");
-  reg = /\r\n\,/g;
-  json = json.replace(reg, ",");
-  if (!options.newlineAfterColonIfBeforeBraceOrBracket) {
-    reg = /\:\r\n\{/g;
-    json = json.replace(reg, ":{");
-    reg = /\:\r\n\[/g;
-    json = json.replace(reg, ":[");
-  }
-  if (options.spaceAfterColon) {
-    reg = /\:/g;
-    json = json.replace(reg, ":");
-  }
-  json.split("\r\n").forEach(function(node, index) {
-    var i = 0,
-      indent = 0,
-      padding = "";
-
-    if (node.match(/\{$/) || node.match(/\[$/)) {
-      indent = 1;
-    } else if (node.match(/\}/) || node.match(/\]/)) {
-      if (pad !== 0) {
-        pad -= 1;
-      }
-    } else {
-      indent = 0;
-    }
-
-    for (i = 0; i < pad; i++) {
-      padding += PADDING;
-    }
-
-    formatted += padding + node + "\r\n";
-    pad += indent;
-  });
-  return formatted;
-}
